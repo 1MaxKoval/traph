@@ -3,6 +3,7 @@ from blessed import Terminal
 
 TERMINAL = Terminal()
 BACKGROUND_C = TERMINAL.black
+
 TILE = '█'
 
 def render(points: Tuple[int, int], color):
