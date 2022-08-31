@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "traph"
+description = "The greatest terminal graph algorithm visualiser"
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.8"
+dependencies = [
+    "blessed"
+]
+
+[project.scripts]
+traph = "traph:main.main"
