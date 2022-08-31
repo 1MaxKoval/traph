@@ -20,13 +20,13 @@ def shortest_points(circle0: Circle, circle1: Circle) -> List[Tuple]:
     p0, p1 = circle0.points, circle1.points
     if not p0 or not p1:
         return [(-1,-1), (-1,-1)]
-    shortest = distance_formula(*p0[0], *p1[0]) 
-    result = [p0[0], p1[0]]
+    shortest = float('inf')
     for p0_point in p0:
         for p1_point in p1:
             c = distance_formula(*p0_point, *p1_point)
             if c < shortest:
                 result = [p0_point, p1_point]
+                shortest = c
     return result
 
 def load(graph: Graph):
