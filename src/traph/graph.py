@@ -20,8 +20,13 @@ class Graph:
         self.positions = positions
         self.e = edges
         self.n = defaultdict(list)
+        self.v_e = defaultdict(list)
         # Assumes bidirectional relationship + edge repetitions are allowed
-        for edge in edges:
+        for i, edge in enumerate(edges):
+            # Create node - edge mapping
+            self.v_e[edge[0]].append(i)
+            self.v_e[edge[1]].append(i)
+            # Create node - node mapping
             self.n[edge[0]].append(edge[1])
             self.n[edge[1]].append(edge[0])
 

@@ -1,6 +1,7 @@
 import math
-from typing import List, Tuple
-from enum import Enum, auto
+import time
+from collections import deque
+from typing import List, Tuple, Dict
 from .graph import Graph
 from .ui.shapes import Circle, Line
 from .ui.ui import TERMINAL
@@ -29,7 +30,7 @@ def shortest_points(circle0: Circle, circle1: Circle) -> List[Tuple]:
                 shortest = c
     return result
 
-def load(graph: Graph):
+def load(graph: Graph) -> Tuple[Dict[int, Line], Dict[str, Circle]]:
     vertex_circle = dict()
     edge_line = dict()
     
@@ -46,4 +47,31 @@ def load(graph: Graph):
         line.draw(EDGE_UNEXPLORED)
         edge_line[i] = line
 
-    # Execute algo!
+    return (edge_line, vertex_circle)
+
+def sleep():
+    time.sleep(0.5)
+
+def bfs(lines: Dict[int, Line], circles: Dict[str, Circle], graph: Graph): 
+    if not graph.v:
+        return
+    visited = set()
+    start = graph.v[0]
+    q = deque([start])
+    sleep()
+    circles[start].draw(VERTEX_CURRENT)
+    visited.add(start)
+    while q:
+        c = q.popleft()
+        sleep()
+        circles[c].draw(VERTEX_EXPLORED)
+        for i in graph.v_e[c]:
+            sleep()
+            lines[i].draw(EDGE_EXPLORED)
+        for vert in graph.n[c]:
+            if vert not in visited:
+                q.append(vert)
+                sleep()
+                circles[vert].draw(VERTEX_CURRENT)
+                visited.add(vert)
+
