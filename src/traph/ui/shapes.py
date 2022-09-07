@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from .ui import render, BACKGROUND_C
+from .ui import render, remove, BACKGROUND_C
 from bresenham import bresenham
 
 CIRCLE_RADIUS = 2
@@ -56,7 +56,7 @@ class Circle:
         render(self.points, color)
     
     def erase(self):
-        render(self.points, BACKGROUND_C)
+        remove(self.points, BACKGROUND_C)
 
 class Line:
 
@@ -70,4 +70,4 @@ class Line:
         render(self.points, color)
     
     def erase(self):
-        render(self.points, BACKGROUND_C)
+        remove(self.points, BACKGROUND_C)
