@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 from blessed import Terminal
 
 TERMINAL = Terminal()
@@ -9,32 +9,44 @@ TILE = '█'
 # Used for keeping track of color layers
 layers = []
 
-def render(points: Tuple[int, int], color):
-    for point in points:
-        record_on_layer(*point, color)
-        print(TERMINAL.move_xy(*point) + color + TILE + TERMINAL.normal)
+def remove(points: Tuple[int, int], point_layers=None):
+    if point_layers is None:
+        point_layers = []
 
-def remove(points: Tuple[int, int]):
-    for point in points:
-        found = False
-        for i in range(len(layers) - 1, -1, -1):
-            if point in layers[i]:
-                found = True
-                del layers[i][point]
-                if i - 1 != -1:
-                    print(TERMINAL.move_xy(*point) + layers[i-1][point] + TILE + TERMINAL.normal)
-                else:
-                    print(TERMINAL.move_xy(*point) + BACKGROUND_C + TILE + TERMINAL.normal)
-                break
-        if not found:
+    for point, point_layer in zip(points, point_layers):
+        del layers[point_layer][point]
+        highest_layer = get_top_layer(point)
+        if highest_layer == -1:
             print(TERMINAL.move_xy(*point) + BACKGROUND_C + TILE + TERMINAL.normal)
+        elif highest_layer < point_layer:
+            print(TERMINAL.move_xy(*point) + layers[highest_layer][point] + TILE + TERMINAL.normal)
 
-def record_on_layer(x: int, y: int, color):
+def get_top_layer(x: int, y: int) -> int:
+    point = (x, y)
     for i in range(len(layers) - 1, -1, -1):
-        if (x, y) in layers[i]:
-            if i + 1 == len(layers):
+        if point in layers[i]:
+            return i
+    return -1
+
+def render(points, color) -> List[int]:
+    point_layers = []
+    for point in points:
+        x, y = point
+        added = False
+        for i in range(len(layers) - 1, -1, -1):
+            if (x, y) in layers[i]:
+                added = True
+                point_layers.append(i)
+                if i + 1 == len(layers):
+                    layers.append({(x, y): color})
+                else:
+                    layers[i + 1][(x, y)] = color
+                break 
+        # Case: Point does not exist in any of the layers
+        if not added:
+            if not layers:
                 layers.append({(x, y): color})
             else:
-                layers[i + 1][(x, y)] = color
-            return
-    layers.append({(x, y): color})
+                layers[0][(x, y)] = color
+        print(TERMINAL.move_xy(x, y) + color + TILE + TERMINAL.normal)
+    return point_layers

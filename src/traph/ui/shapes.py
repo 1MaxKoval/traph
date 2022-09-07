@@ -44,30 +44,32 @@ def circle_points(x_o: int, y_o: int, r: int) -> List[Tuple[int, int]]:
             e = e + 2*(y + 1) - 2*(x - 1) + 1
     return point_result
 
-class Circle:
+class Shape:
+
+    def __init__(self):
+        self.points = []
+        self.point_layers = []
+    
+    def draw(self, color):
+        render(self.points, color)
+    
+    def erase(self):
+        remove(self.point_layers, self.points)
+
+class Circle(Shape):
 
     def __init__(self, center: Tuple[int, int], radius: int = CIRCLE_RADIUS):
         # Assuming valid center and radius
+        super().__init__()
         self.c = center
         self.r = radius
-        self.points = set(circle_points(*center, radius))
-    
-    def draw(self, color):
-        render(self.points, color)
-    
-    def erase(self):
-        remove(self.points, BACKGROUND_C)
+        self.points = list(set(circle_points(*center, radius)))
 
-class Line:
+class Line(Shape):
 
     def __init__(self, start: Tuple[int, int], end: Tuple[int, int]):
         # Assuming valid center and radius
+        super().__init__()
         self.s = start
         self.e = end
-        self.points = set(bresenham(*start, *end))
-    
-    def draw(self, color):
-        render(self.points, color)
-    
-    def erase(self):
-        remove(self.points, BACKGROUND_C)
+        self.points = list(bresenham(*start, *end))
