@@ -2,7 +2,7 @@ from typing import Tuple, List
 from .ui import render, BACKGROUND_C
 from bresenham import bresenham
 
-CIRCLE_RADIUS = 1
+CIRCLE_RADIUS = 2
 
 def reflect_octants(x: int, y: int, x_c: int, y_c:int) -> List[Tuple]:
     """

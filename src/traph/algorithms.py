@@ -39,7 +39,8 @@ def load(graph: Graph):
         circle.draw(VERTEX_UNEXPLORED)
         vertex_circle[val] = circle
 
-    for i, v1, v2 in enumerate(graph.e):
+    for i in range(len(graph.e)):
+        v1, v2 = graph.e[i]
         start, end = shortest_points(vertex_circle[v1], vertex_circle[v2])
         line = Line(start, end)
         line.draw(EDGE_UNEXPLORED)

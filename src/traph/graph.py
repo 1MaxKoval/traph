@@ -26,7 +26,7 @@ class Graph:
             self.n[edge[1]].append(edge[0])
 
     def __repr__(self) -> str:
-        return pprint.pformat(self.n)
+        return str(self.n)
 
     def __str__(self):
         pass
