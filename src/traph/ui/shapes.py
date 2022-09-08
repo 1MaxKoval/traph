@@ -51,7 +51,7 @@ class Shape:
         self.point_layers = []
     
     def draw(self, color):
-        render(self.points, color)
+        self.point_layers = render(self.points, color)
     
     def erase(self):
         remove(self.point_layers, self.points)
@@ -68,7 +68,6 @@ class Circle(Shape):
 class Line(Shape):
 
     def __init__(self, start: Tuple[int, int], end: Tuple[int, int]):
-        # Assuming valid center and radius
         super().__init__()
         self.s = start
         self.e = end

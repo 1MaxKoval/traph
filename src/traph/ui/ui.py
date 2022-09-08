@@ -36,7 +36,7 @@ def render(points, color) -> List[int]:
         for i in range(len(layers) - 1, -1, -1):
             if (x, y) in layers[i]:
                 added = True
-                point_layers.append(i)
+                point_layers.append(i + 1)
                 if i + 1 == len(layers):
                     layers.append({(x, y): color})
                 else:
@@ -44,6 +44,7 @@ def render(points, color) -> List[int]:
                 break 
         # Case: Point does not exist in any of the layers
         if not added:
+            point_layers.append(0)
             if not layers:
                 layers.append({(x, y): color})
             else:
