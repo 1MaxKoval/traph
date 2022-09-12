@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 from blessed import Terminal
 
 TERMINAL = Terminal()
@@ -28,7 +28,9 @@ def get_top_layer(x: int, y: int) -> int:
             return i
     return -1
 
-def render(points, color) -> List[int]:
+def render(points, color, text_points: Dict[Tuple, str] = None) -> List[int]:
+    if text_points is None:
+        text_points = dict()
     point_layers = []
     for point in points:
         x, y = point

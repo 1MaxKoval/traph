@@ -1,5 +1,5 @@
 from typing import Tuple, List
-from .ui import render, remove, BACKGROUND_C
+from .ui import render, remove, BACKGROUND_C, TERMINAL
 from bresenham import bresenham
 
 CIRCLE_RADIUS = 2
@@ -19,6 +19,13 @@ def reflect_octants(x: int, y: int, x_c: int, y_c:int) -> List[Tuple]:
         (-y + x_c, -x + y_c)
     ]
     return result
+
+def rectangle_points(top_left: Tuple[int, int], hor: int, vert: int) -> List[Tuple[int, int]]:
+    res = list()
+    for dy in range(0, vert):
+        for dx in range(0, hor):
+            res.append( (top_left[0] + dx, top_left[1] + dy) )
+    return res
 
 def circle_points(x_o: int, y_o: int, r: int) -> List[Tuple[int, int]]:
     """
@@ -54,7 +61,7 @@ class Shape:
         self.point_layers = render(self.points, color)
     
     def erase(self):
-        remove(self.point_layers, self.points)
+        remove(self.points, self.point_layers)
 
 class Circle(Shape):
 
@@ -72,3 +79,23 @@ class Line(Shape):
         self.s = start
         self.e = end
         self.points = list(bresenham(*start, *end))
+
+class MessageBox(Shape):
+
+    def __init__(self, position: str, message: str):
+        super().__init__()
+        self.height, self.width = TERMINAL.height // 4, TERMINAL.width // 3
+        if position != 'c' and position != 'tl' and position != 'tr':
+            raise Exception()
+        elif position == 'tl':
+            top_left = (TERMINAL.width // 25, TERMINAL.height // 15)
+        elif position == 'tr':
+            offset_x, offset_y = TERMINAL.width // 25, TERMINAL.height // 15
+            top_left = (TERMINAL.width - offset_x - self.width, offset_y)
+        elif position == 'c':
+            top_left = (TERMINAL.width // 2 - self.width // 2, TERMINAL.height // 2 - self.height // 2)
+        self.points = rectangle_points(top_left, self.width, self.height)
+        self.m = message
+    
+class Bar(Shape):
+    pass

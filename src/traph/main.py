@@ -1,3 +1,5 @@
+from traph.ui.ui import TERMINAL
 
 def main():
-    pass
+    with TERMINAL.fullscreen():
+        pass

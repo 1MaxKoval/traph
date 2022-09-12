@@ -6,10 +6,12 @@ from .graph import Graph
 from .ui.shapes import Circle, Line
 from .ui.ui import TERMINAL
 
+VERTEX_CHOOSING = TERMINAL.magenta3 
 VERTEX_UNEXPLORED = TERMINAL.firebrick1
 VERTEX_EXPLORED = TERMINAL.green
 VERTEX_CURRENT = TERMINAL.aqua
 
+EDGE_CHOOSING = TERMINAL.magenta3
 EDGE_UNEXPLORED = TERMINAL.firebrick1
 EDGE_EXPLORED = TERMINAL.green
 EDGE_CURRENT = TERMINAL.aqua
