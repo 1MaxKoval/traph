@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Callable
 from .ui import render, remove, BACKGROUND_C, TERMINAL
 from bresenham import bresenham
 
@@ -58,7 +58,8 @@ class Shape:
         self.point_layers = []
     
     def draw(self, color):
-        self.point_layers = render(self.points, color)
+        point_color_map = {point : color for point in self.points}
+        self.point_layers = render(points = point_color_map)
     
     def erase(self):
         remove(self.points, self.point_layers)
@@ -84,7 +85,20 @@ class MessageBox(Shape):
 
     def __init__(self, position: str, message: str):
         super().__init__()
-        self.height, self.width = TERMINAL.height // 4, TERMINAL.width // 3
+
+        self.m = message
+        max_width = 0
+        height = 0
+        line_width = 0
+        for char in message:
+            if char == '\n':
+                height += 1
+                max_width = max(max_width, line_width)
+                line_width = 0 
+            else:
+                line_width += 1
+
+        self.height, self.width = height, max_width
         if position != 'c' and position != 'tl' and position != 'tr':
             raise Exception()
         elif position == 'tl':
@@ -94,8 +108,13 @@ class MessageBox(Shape):
             top_left = (TERMINAL.width - offset_x - self.width, offset_y)
         elif position == 'c':
             top_left = (TERMINAL.width // 2 - self.width // 2, TERMINAL.height // 2 - self.height // 2)
-        self.points = rectangle_points(top_left, self.width, self.height)
-        self.m = message
+
+        # Add 2 to have a 1 pixel border on each side
+        self.top_left = top_left
+        self.points = rectangle_points(top_left, self.width + 2, self.height + 2)
     
+    def draw(box_color, text_foreground = 'black', text_background = 'white'):
+        pass
+
 class Bar(Shape):
     pass

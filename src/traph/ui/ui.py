@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Callable
 from blessed import Terminal
 
 TERMINAL = Terminal()
@@ -6,20 +6,36 @@ BACKGROUND_C = TERMINAL.black
 
 TILE = '█'
 
-# Used for keeping track of color layers
+class TextPoint:
+
+    def __init__(self, character, foreground_color, background_color):
+        self.c = character
+        self.f = foreground_color
+        self.b = background_color
+
+# Used for keeping track of colors assosciated with particular layers
 layers = []
 
-def remove(points: Tuple[int, int], point_layers=None):
-    if point_layers is None:
-        point_layers = []
+def blessed_colors(foreground_c: str, background_c: str) -> Callable:
+    if foreground_c == 'red' and background_c == 'green':
+        return TERMINAL.red_on_green
+    else:
+        return TERMINAL.black_on_white
 
-    for point, point_layer in zip(points, point_layers):
+def remove(points: List[Tuple[int, int]], point_layers: Dict[Tuple[int, int], int]):
+    for point in points:
+        point_layer = point_layers[point]
         del layers[point_layer][point]
         highest_layer = get_top_layer(point)
         if highest_layer == -1:
             print(TERMINAL.move_xy(*point) + BACKGROUND_C + TILE + TERMINAL.normal)
         elif highest_layer < point_layer:
-            print(TERMINAL.move_xy(*point) + layers[highest_layer][point] + TILE + TERMINAL.normal)
+            data = layers[highest_layer][point]
+            if isinstance(data, TextPoint):
+                painter = blessed_colors(data.f, data.b)
+                print(TERMINAL.move_xy(*point) + painter(data.c) + TERMINAL.normal)
+            else:
+                print(TERMINAL.move_xy(*point) + data + TILE + TERMINAL.normal)
 
 def get_top_layer(x: int, y: int) -> int:
     point = (x, y)
@@ -28,28 +44,40 @@ def get_top_layer(x: int, y: int) -> int:
             return i
     return -1
 
-def render(points, color, text_points: Dict[Tuple, str] = None) -> List[int]:
-    if text_points is None:
-        text_points = dict()
-    point_layers = []
-    for point in points:
-        x, y = point
-        added = False
-        for i in range(len(layers) - 1, -1, -1):
-            if (x, y) in layers[i]:
-                added = True
-                point_layers.append(i + 1)
+def add_point_layer(point, data) -> int:
+    for i in range(len(layers) - 1, -1, -1):
+            if point in layers[i]:
                 if i + 1 == len(layers):
-                    layers.append({(x, y): color})
+                    layers.append({point: data})
                 else:
-                    layers[i + 1][(x, y)] = color
-                break 
-        # Case: Point does not exist in any of the layers
-        if not added:
-            point_layers.append(0)
-            if not layers:
-                layers.append({(x, y): color})
-            else:
-                layers[0][(x, y)] = color
-        print(TERMINAL.move_xy(x, y) + color + TILE + TERMINAL.normal)
+                    layers[i + 1][point] = data
+                return i + 1
+    if not layers:
+        layers.append({point: data})
+    else:
+        layers[0][point] = data
+    return 0
+
+def render(points: Dict[Tuple, str] = None,  text_points: Dict[Tuple, str] = None, text_color: Dict[Tuple, str] = None, text_background: Dict[Tuple, str] = None) -> Dict[Tuple, int]:
+    # Assumes there is no overlap between text_points and points
+    points = dict() if points is None else points
+    text_color = dict() if text_color is None else text_color
+    text_points = dict() if text_points is None else text_points
+    text_background = dict() if text_background is None else text_background
+
+    point_layers = dict()
+    for point, color in points.items():
+        layer = add_point_layer(point, color)
+        point_layers[point] = layer
+        print(TERMINAL.move_xy(*point) + color + TILE + TERMINAL.normal)
+
+    for point, char in text_points.items():
+        background_c = text_background[point] if point in text_background else BACKGROUND_C
+        foreground_c = text_color[point] if point in text_color else BACKGROUND_C
+        color_point = TextPoint(char, foreground_c, background_c)
+        layer = add_point_layer(point, color_point)
+        point_layers[point] = layer
+        painter = blessed_colors(foreground_c, background_c)
+        print(TERMINAL.move_xy(*point) + painter(char) + TERMINAL.normal)
+
     return point_layers
