@@ -53,13 +53,26 @@ def circle_points(x_o: int, y_o: int, r: int) -> List[Tuple[int, int]]:
 
 class Shape:
 
-    def __init__(self):
-        self.points = []
-        self.point_layers = []
+    def __init__(self, point_generator, *args, **kwargs):
+        self.points = list(set(point_generator(*args, **kwargs)))
+        self.point_layers = {}
     
-    def draw(self, color):
-        point_color_map = {point : color for point in self.points}
-        self.point_layers = render(points = point_color_map)
+    def draw(self, /, color_map = None, text = None, text_f = None, text_b = None, fill = BACKGROUND_C):
+        color_map = color_map if color_map is not None else {}        
+        text = text if text is not None else {}
+        text_f = text_f if text_f is not None else {}
+        text_b = text_b if text_b is not None else {}
+        for point in self.points:
+            if point in color_map and point in text:
+                raise Exception('A point cannot be a text point and a color tile at the same time!')
+            if point not in color_map:
+                color_map[point] = fill
+        self.point_layers = render(
+            points=color_map,
+            text_points=text,
+            text_color=text_f,
+            text_background=text_b
+        )
     
     def erase(self):
         remove(self.points, self.point_layers)
@@ -68,22 +81,21 @@ class Circle(Shape):
 
     def __init__(self, center: Tuple[int, int], radius: int = CIRCLE_RADIUS):
         # Assuming valid center and radius
-        super().__init__()
+        super().__init__(circle_points, *center, radius)
         self.c = center
         self.r = radius
-        self.points = list(set(circle_points(*center, radius)))
 
 class Line(Shape):
 
     def __init__(self, start: Tuple[int, int], end: Tuple[int, int]):
-        super().__init__()
+        super().__init__(bresenham, *start, *end)
         self.s = start
         self.e = end
-        self.points = list(bresenham(*start, *end))
 
 class MessageBox(Shape):
 
     def __init__(self, position: str, message: str):
+        pass
         super().__init__()
 
         self.m = message
@@ -97,6 +109,7 @@ class MessageBox(Shape):
                 line_width = 0 
             else:
                 line_width += 1
+            line_width += 1
 
         self.height, self.width = height, max_width
         if position != 'c' and position != 'tl' and position != 'tr':

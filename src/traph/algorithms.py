@@ -39,14 +39,14 @@ def load(graph: Graph) -> Tuple[Dict[int, Line], Dict[str, Circle]]:
     for i, val in enumerate(graph.v):
         center = graph.positions[i]
         circle = Circle(center)
-        circle.draw(VERTEX_UNEXPLORED)
+        circle.draw(fill=VERTEX_UNEXPLORED)
         vertex_circle[val] = circle
 
     for i in range(len(graph.e)):
         v1, v2 = graph.e[i]
         start, end = shortest_points(vertex_circle[v1], vertex_circle[v2])
         line = Line(start, end)
-        line.draw(EDGE_UNEXPLORED)
+        line.draw(fill=EDGE_UNEXPLORED)
         edge_line[i] = line
 
     return (edge_line, vertex_circle)
@@ -61,19 +61,19 @@ def bfs(lines: Dict[int, Line], circles: Dict[str, Circle], graph: Graph):
     start = graph.v[0]
     q = deque([start])
     sleep()
-    circles[start].draw(VERTEX_CURRENT)
+    circles[start].draw(fill=VERTEX_CURRENT)
     visited.add(start)
     while q:
         c = q.popleft()
         sleep()
-        circles[c].draw(VERTEX_EXPLORED)
+        circles[c].draw(fill=VERTEX_EXPLORED)
         for i in graph.v_e[c]:
             sleep()
-            lines[i].draw(EDGE_EXPLORED)
+            lines[i].draw(fill=EDGE_EXPLORED)
         for vert in graph.n[c]:
             if vert not in visited:
                 q.append(vert)
                 sleep()
-                circles[vert].draw(VERTEX_CURRENT)
+                circles[vert].draw(fill=VERTEX_CURRENT)
                 visited.add(vert)
 
