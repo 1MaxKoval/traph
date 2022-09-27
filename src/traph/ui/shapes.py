@@ -1,6 +1,4 @@
-from curses.textpad import rectangle
-from re import T
-from typing import Tuple, List, Callable
+from typing import Tuple, List
 from .ui import render, remove, BACKGROUND_C, TERMINAL
 from bresenham import bresenham
 
@@ -68,7 +66,7 @@ class Shape:
             if point in color_map and point in text:
                 # Handle the condition of a point being contained in text and in color tiles at the same time
                 del color_map[point]
-            if point not in color_map:
+            if point not in color_map and point not in text:
                 color_map[point] = fill
         self.point_layers = render(
             points=color_map,

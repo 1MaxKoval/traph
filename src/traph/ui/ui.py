@@ -26,7 +26,7 @@ def remove(points: List[Tuple[int, int]], point_layers: Dict[Tuple[int, int], in
     for point in points:
         point_layer = point_layers[point]
         del layers[point_layer][point]
-        highest_layer = get_top_layer(point)
+        highest_layer = get_top_layer(*point)
         if highest_layer == -1:
             print(TERMINAL.move_xy(*point) + BACKGROUND_C + TILE + TERMINAL.normal)
         elif highest_layer < point_layer:
