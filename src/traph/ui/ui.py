@@ -22,6 +22,9 @@ def blessed_colors(foreground_c: str, background_c: str) -> Callable:
     else:
         return TERMINAL.black_on_white
 
+def set_og_background():
+    print(TERMINAL.home + TERMINAL.on_black + TERMINAL.clear)
+
 def remove(points: List[Tuple[int, int]], point_layers: Dict[Tuple[int, int], int]):
     for point in points:
         point_layer = point_layers[point]

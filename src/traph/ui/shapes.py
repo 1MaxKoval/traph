@@ -80,11 +80,12 @@ class Shape:
 
 class Circle(Shape):
 
-    def __init__(self, center: Tuple[int, int], radius: int = CIRCLE_RADIUS):
+    def __init__(self, center: Tuple[int, int], radius: int = CIRCLE_RADIUS, name: str = ''):
         # Assuming valid center and radius
         super().__init__(circle_points, *center, radius)
         self.c = center
         self.r = radius
+        self.name = name
 
 class Line(Shape):
 
