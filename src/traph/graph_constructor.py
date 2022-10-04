@@ -2,6 +2,8 @@ from typing import List, Dict
 from .graph import Graph
 from .ui.ui import set_og_background, TERMINAL as term
 from .ui.shapes import MessageBox, Circle, Line, CIRCLE_RADIUS
+from .algorithms import shortest_points
+from collections import defaultdict
 
 
 def construct_graph() -> Graph:
@@ -28,7 +30,7 @@ Press `1` to start graph construction."""
     menu_box.draw() 
     circles = []
     lines = []
-    edges = {}
+    edges = defaultdict(list)
     while True:
         with term.cbreak():
             val = ''
@@ -42,7 +44,8 @@ Press `1` to start graph construction."""
                     menu_box.erase()
                 elif val == '3' and len(circles) >= 2:
                     menu_box.erase()
-                    lines.append(add_edge(circles))
+                    lines.append(add_edge(circles, edges))
+                    menu_box.draw()
                 elif val == '4':
                     menu_box.erase()
                 elif val == '5':
@@ -94,39 +97,59 @@ def add_vertex() -> Circle:
     helper_msg_box.erase()
     return c
     
-def add_edge(selection_circles: List[Circle]) -> Line:
+def add_edge(selection_circles: List[Circle], edges: Dict[str, List[str]]) -> Line:
     """Assumes there exists at least 2 circles"""
     top_msg = \
 """Select two vertices to connect them with an edge
 Select using arrow keys and `ENTER`"""
     helper_msg_box = MessageBox('tl', top_msg)
     helper_msg_box.draw()
+    first = select_circle(selection_circles, edges)
+    first_c = selection_circles[first] 
+    first_c.draw(fill=term.green)
+    second = select_circle(selection_circles, edges, first)
+    second_c = selection_circles[second]
+    first_c.erase()
+    line = Line(*shortest_points(first_c, second_c))
+    line.draw(fill=term.red)
+    edges[first_c.name].append(second_c.name)
+    edges[second_c.name].append(first_c.name)
+    return line
 
-def select_circle(start: int, circles: List[Circle], edges: Dict[str, List[str]], first = '') -> int:
-    # TODO: Add bidrectional relationship to edges dictionary
-    if start < 0 or start >= len(circles):
-        raise Exception(f'{start} outside of circles list bounds')
-    current = start
-    start_circle = circles[start]
-    start_circle.erase()
-    start_circle.draw(fill=term.green)
+def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int = -1) -> int:
+    if first != -1 and len(edges[circles[first]]) == len(circles) - 1:
+        raise Exception('Your first choice exhausts all choices rip lmao')
+    current = 0 
+    while (current == first) or (first != -1 and circles[first] in edges[current]):
+        current = (current + 1) % len(circles)
+    current_c = circles[current]
+    current_c.draw(fill=term.green)
     val = term.inkey()
-    while not val.is_sequence() or val.code != 343:
-        if val.code == '261' or val.code == '259':
-            current = (current + 1) % len(circles)
-            # TODO: Carry on with this later!
-            while (current == start) or (first and first in edges[current]):
+    while not val.is_sequence or val.code != 343:
+        if val.is_sequence:
+            if val.code == 261 or val.code == 259:
+                # up-right
                 current = (current + 1) % len(circles)
-        elif val.code == '260' or val.code == '258':
-            # left-down
-            pass
-        val = term.inkey()
-    pass
+                while (current == first) or (first != -1 and circles[first] in edges[current]):
+                    current = (current + 1) % len(circles)
+            elif val.code == 260 or val.code == 258:
+                # left-down
+                current = (current - 1) % len(circles)
+                while (current == first) or (first != -1 and circles[first] in edges[current]):
+                    current = (current - 1) % len(circles)
+            else:
+                continue
+            current_c.erase() 
+            current_c.draw(fill=term.red)
+            current_c = circles[current]
+            current_c.draw(fill=term.green)
+            val = term.inkey()
+    current_c.erase()
+    current_c.draw(fill=term.red)
+    return current
 
 def get_v_name() -> str:
     i = 0
     while True:
         yield f'v{str(i)}'
-
-def get_next_valid_circle(circles):
-    pass
+        i += 1
