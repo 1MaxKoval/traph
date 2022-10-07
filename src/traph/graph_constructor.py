@@ -5,6 +5,13 @@ from .ui.shapes import MessageBox, Circle, Line, CIRCLE_RADIUS
 from .algorithms import shortest_points
 from collections import defaultdict
 
+def get_v_name() -> str:
+    i = 0
+    while True:
+        yield f'v{str(i)}'
+        i += 1
+
+NAME_GENERATOR = get_v_name()
 
 def construct_graph() -> Graph:
     set_og_background()
@@ -93,7 +100,7 @@ def add_vertex() -> Circle:
         val = term.inkey()
     c.erase()
     c.draw(fill=term.red)
-    c.name = get_v_name()
+    c.name = next(NAME_GENERATOR)
     helper_msg_box.erase()
     return c
     
@@ -114,13 +121,14 @@ Select using arrow keys and `ENTER`"""
     line.draw(fill=term.red)
     edges[first_c.name].append(second_c.name)
     edges[second_c.name].append(first_c.name)
+    helper_msg_box.erase()
     return line
 
 def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int = -1) -> int:
     if first != -1 and len(edges[circles[first]]) == len(circles) - 1:
         raise Exception('Your first choice exhausts all choices rip lmao')
     current = 0 
-    while (current == first) or (first != -1 and circles[first] in edges[current]):
+    while (current == first) or (first != -1 and circles[first].name in edges[circles[current].name]):
         current = (current + 1) % len(circles)
     current_c = circles[current]
     current_c.draw(fill=term.green)
@@ -130,26 +138,30 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
             if val.code == 261 or val.code == 259:
                 # up-right
                 current = (current + 1) % len(circles)
-                while (current == first) or (first != -1 and circles[first] in edges[current]):
+                while (current == first) or (first != -1 and circles[first].name in edges[circles[current].name]):
                     current = (current + 1) % len(circles)
             elif val.code == 260 or val.code == 258:
                 # left-down
                 current = (current - 1) % len(circles)
-                while (current == first) or (first != -1 and circles[first] in edges[current]):
+                while (current == first) or (first != -1 and circles[first].name in edges[circles[current].name]):
                     current = (current - 1) % len(circles)
             else:
+                val = term.inkey()
                 continue
             current_c.erase() 
             current_c.draw(fill=term.red)
             current_c = circles[current]
             current_c.draw(fill=term.green)
-            val = term.inkey()
+        val = term.inkey()
     current_c.erase()
     current_c.draw(fill=term.red)
     return current
 
-def get_v_name() -> str:
-    i = 0
-    while True:
-        yield f'v{str(i)}'
-        i += 1
+def remove_vertex() -> None:
+    pass
+
+def remove_edge() -> None:
+    pass
+
+def run_algorithms() -> None:
+    pass
