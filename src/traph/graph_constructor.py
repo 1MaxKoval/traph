@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from .graph import Graph
 from .ui.ui import set_og_background, TERMINAL as term
 from .ui.shapes import MessageBox, Circle, Line, CIRCLE_RADIUS
@@ -36,7 +36,7 @@ Press `1` to start graph construction."""
     menu_box = MessageBox('c', menu_msg)
     menu_box.draw() 
     circles = []
-    lines = []
+    lines = {}
     edges = defaultdict(list)
     while True:
         with term.cbreak():
@@ -51,10 +51,12 @@ Press `1` to start graph construction."""
                     menu_box.erase()
                 elif val == '3' and len(circles) >= 2:
                     menu_box.erase()
-                    lines.append(add_edge(circles, edges))
+                    add_edge(circles, edges, lines)
                     menu_box.draw()
-                elif val == '4':
+                elif val == '4' and len(edges) >= 1:
                     menu_box.erase()
+                    remove_edge(edges, lines)
+                    menu_box.draw()
                 elif val == '5':
                     menu_box.erase()
 
@@ -104,7 +106,7 @@ def add_vertex() -> Circle:
     helper_msg_box.erase()
     return c
     
-def add_edge(selection_circles: List[Circle], edges: Dict[str, List[str]]) -> Line:
+def add_edge(selection_circles: List[Circle], edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Line]) -> Line:
     """Assumes there exists at least 2 circles"""
     top_msg = \
 """Select two vertices to connect them with an edge
@@ -121,6 +123,8 @@ Select using arrow keys and `ENTER`"""
     line.draw(fill=term.red)
     edges[first_c.name].append(second_c.name)
     edges[second_c.name].append(first_c.name)
+    edge_line[(first_c.name, second_c.name)] = line
+    edge_line[(second_c.name, first_c.name)] = line
     helper_msg_box.erase()
     return line
 
@@ -160,8 +164,47 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
 def remove_vertex() -> None:
     pass
 
-def remove_edge() -> None:
-    pass
+def remove_edge(edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Line]) -> None:
+    top_msg = \
+"""Select an edge to remove
+Select using arrow keys and `ENTER`"""
+    msg_box = MessageBox('tl', top_msg)
+    msg_box.draw()
+    i = 0
+    v_to_v = list(edge_line)
+    v1, v2 = v_to_v[i]
+    c_l = edge_line[(v1, v2)]
+    c_l.erase()
+    c_l.draw(fill=term.green)
+    val = term.inkey()
+    while not (val.is_sequence and val.code == 343):
+        if val.is_sequence():
+            if val.code == 261 or val.code == 259:
+                # up-right
+                c_l.erase()
+                c_l.draw(fill=term.red)
+                i = (i + 1) % len(v_to_v)
+                v1, v2 = v_to_v[i]
+                c_l = edge_line((v1, v2))
+                c_l.draw(fill=term.green)
+            elif val.code == 260 or val.code == 258:
+                c_l.erase()
+                c_l.draw(fill=term.red)
+                i = (i - 1) % len(v_to_v)
+                v1, v2 = v_to_v[i]
+                c_l = edge_line((v1, v2))
+                c_l.draw(fill=term.green)
+        val = term.inkey()
+    del edge_line[(v1, v2)]
+    del edge_line[(v2, v1)]
+    del edges[v1]
+    del edges[v2]
+    c_l.erase()
+    del c_l
+
+    
+            
+    
 
 def run_algorithms() -> None:
     pass
