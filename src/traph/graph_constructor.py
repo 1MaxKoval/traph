@@ -161,7 +161,7 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
     current_c.draw(fill=term.red)
     return current
 
-def remove_vertex() -> None:
+def remove_vertex(circles: List[Circle], lines: Dict[Tuple[str, str], Line], edges: Dict[str, List[str]]) -> None:
     pass
 
 def remove_edge(edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Line]) -> None:
@@ -170,6 +170,7 @@ def remove_edge(edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Li
 Select using arrow keys and `ENTER`"""
     msg_box = MessageBox('tl', top_msg)
     msg_box.draw()
+    # BUG: Twice the iteration due to the bi-directional pairs in edges dictionary
     i = 0
     v_to_v = list(edge_line)
     v1, v2 = v_to_v[i]
@@ -178,21 +179,23 @@ Select using arrow keys and `ENTER`"""
     c_l.draw(fill=term.green)
     val = term.inkey()
     while not (val.is_sequence and val.code == 343):
-        if val.is_sequence():
+        if val.is_sequence:
             if val.code == 261 or val.code == 259:
                 # up-right
                 c_l.erase()
                 c_l.draw(fill=term.red)
                 i = (i + 1) % len(v_to_v)
                 v1, v2 = v_to_v[i]
-                c_l = edge_line((v1, v2))
+                c_l = edge_line[(v1, v2)]
+                c_l.erase()
                 c_l.draw(fill=term.green)
             elif val.code == 260 or val.code == 258:
                 c_l.erase()
                 c_l.draw(fill=term.red)
                 i = (i - 1) % len(v_to_v)
                 v1, v2 = v_to_v[i]
-                c_l = edge_line((v1, v2))
+                c_l = edge_line[(v1, v2)]
+                c_l.erase()
                 c_l.draw(fill=term.green)
         val = term.inkey()
     del edge_line[(v1, v2)]
@@ -201,6 +204,7 @@ Select using arrow keys and `ENTER`"""
     del edges[v2]
     c_l.erase()
     del c_l
+    msg_box.erase()
 
     
             
