@@ -47,13 +47,15 @@ Press `1` to start graph construction."""
                     menu_box.erase()
                     circles.append(add_vertex())
                     menu_box.draw()
-                elif val == '2':
+                elif val == '2' and len(circles) >= 1:
                     menu_box.erase()
+                    remove_vertex(circles, lines, edges)
+                    menu_box.draw()
                 elif val == '3' and len(circles) >= 2:
                     menu_box.erase()
                     add_edge(circles, edges, lines)
                     menu_box.draw()
-                elif val == '4' and len(edges) >= 1:
+                elif val == '4' and len(lines) >= 1:
                     menu_box.erase()
                     remove_edge(edges, lines)
                     menu_box.draw()
@@ -124,7 +126,6 @@ Select using arrow keys and `ENTER`"""
     edges[first_c.name].append(second_c.name)
     edges[second_c.name].append(first_c.name)
     edge_line[(first_c.name, second_c.name)] = line
-    edge_line[(second_c.name, first_c.name)] = line
     helper_msg_box.erase()
     return line
 
@@ -162,7 +163,54 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
     return current
 
 def remove_vertex(circles: List[Circle], lines: Dict[Tuple[str, str], Line], edges: Dict[str, List[str]]) -> None:
-    pass
+    msg = \
+"""Select a vertex to remove
+Select using arrow keys and `ENTER`"""
+    msg_box = MessageBox('tl', msg)
+    msg_box.draw()
+    i = 0
+    c_c = circles[i]
+    c_c.erase()
+    c_c.draw(fill=term.green)
+    val = term.inkey()
+    while not (val.is_sequence and val.code == 343):
+        if val.is_sequence:
+            # Weird bug when trying to select a circle to delete!
+            if val.code == 261 or val.code == 259:
+                i = (i + 1) % len(circles)
+                c_c.erase()
+                c_c.draw(fill=term.red)
+                c_c = circles[i]
+                c_c.erase()
+                c_c.draw(fill=term.green)
+            elif val.code == 260 or val.code == 258:
+                i = (i - 1) % len(circles)
+                c_c.erase()
+                c_c.draw(fill=term.red)
+                c_c = circles[i]
+                c_c.erase()
+                c_c.draw(fill=term.green)
+        val = term.inkey()
+    c_c.erase()
+    if c_c.name in edges:
+        del edges[c_c.name]
+    for name, neighbors in edges.items():
+        for i in range(len(neighbors)):
+            if neighbors[i] == c_c.name:
+                del neighbors[i]
+                break
+    to_delete = list()
+    for tup, line in lines.items():
+        if c_c.name in tup:
+            to_delete.append(tup)
+    for tup in to_delete:
+        line = lines[tup]
+        line.erase()
+        del lines[tup]
+        del line
+    del circles[i]
+    del c_c
+    msg_box.erase()
 
 def remove_edge(edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Line]) -> None:
     top_msg = \
@@ -170,7 +218,6 @@ def remove_edge(edges: Dict[str, List[str]], edge_line: Dict[Tuple[str, str], Li
 Select using arrow keys and `ENTER`"""
     msg_box = MessageBox('tl', top_msg)
     msg_box.draw()
-    # BUG: Twice the iteration due to the bi-directional pairs in edges dictionary
     i = 0
     v_to_v = list(edge_line)
     v1, v2 = v_to_v[i]
@@ -181,7 +228,6 @@ Select using arrow keys and `ENTER`"""
     while not (val.is_sequence and val.code == 343):
         if val.is_sequence:
             if val.code == 261 or val.code == 259:
-                # up-right
                 c_l.erase()
                 c_l.draw(fill=term.red)
                 i = (i + 1) % len(v_to_v)
@@ -199,16 +245,11 @@ Select using arrow keys and `ENTER`"""
                 c_l.draw(fill=term.green)
         val = term.inkey()
     del edge_line[(v1, v2)]
-    del edge_line[(v2, v1)]
-    del edges[v1]
-    del edges[v2]
+    edges[v1].remove(v2)
+    edges[v2].remove(v1)
     c_l.erase()
     del c_l
     msg_box.erase()
-
-    
-            
-    
 
 def run_algorithms() -> None:
     pass

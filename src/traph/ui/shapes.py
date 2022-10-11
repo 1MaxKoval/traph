@@ -28,11 +28,6 @@ def rectangle_points(top_left: Tuple[int, int], hor: int, vert: int) -> List[Tup
     return res
 
 def circle_points(x_o: int, y_o: int, r: int) -> List[Tuple[int, int]]:
-    """
-    Generates points for a circle
-    
-    https://www.geeksforgeeks.org/mid-point-circle-drawing-algorithm/
-    """
     point_result = list()
     r = abs(r)
     if r == 0:
@@ -77,6 +72,7 @@ class Shape:
     
     def erase(self):
         remove(self.points, self.point_layers)
+        self.point_layers = {}
 
 class Circle(Shape):
 

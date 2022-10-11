@@ -28,6 +28,7 @@ def set_og_background():
 def remove(points: List[Tuple[int, int]], point_layers: Dict[Tuple[int, int], int]):
     for point in points:
         point_layer = point_layers[point]
+        # BUG: For some reason a point_layer is has been deleted for a shape before its .erase() has been called.
         del layers[point_layer][point]
         highest_layer = get_top_layer(*point)
         if highest_layer == -1:
