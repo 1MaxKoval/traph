@@ -41,6 +41,8 @@ Press `1` to start graph construction."""
     while True:
         with term.cbreak():
             val = ''
+            n = len(circles)
+            max_edges = (n*(n-1)) // 2
             while val not in {'1', '2', '3', '4', '5'}:
                 val = term.inkey()
                 if val == '1':
@@ -48,10 +50,11 @@ Press `1` to start graph construction."""
                     circles.append(add_vertex())
                     menu_box.draw()
                 elif val == '2' and len(circles) >= 1:
+                    # BUG: Error while trying to delete a vertex
                     menu_box.erase()
                     remove_vertex(circles, lines, edges)
                     menu_box.draw()
-                elif val == '3' and len(circles) >= 2:
+                elif val == '3' and len(circles) >= 2 and len(lines) + 1 <= max_edges:
                     menu_box.erase()
                     add_edge(circles, edges, lines)
                     menu_box.draw()
