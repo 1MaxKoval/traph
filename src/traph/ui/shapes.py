@@ -53,6 +53,8 @@ class Shape:
         self.point_layers = {}
     
     def draw(self, /, color_map = None, text = None, text_f = None, text_b = None, fill = BACKGROUND_C):
+        if self.point_layers:
+            self.erase()
         color_map = color_map if color_map is not None else {}        
         text = text if text is not None else {}
         text_f = text_f if text_f is not None else {}

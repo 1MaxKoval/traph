@@ -2,7 +2,6 @@ import math
 import time
 from collections import deque
 from typing import List, Tuple, Dict
-from .graph import Graph
 from .ui.shapes import Circle, Line
 from .ui.ui import TERMINAL
 
@@ -32,48 +31,32 @@ def shortest_points(circle0: Circle, circle1: Circle) -> List[Tuple]:
                 shortest = c
     return result
 
-def load(graph: Graph) -> Tuple[Dict[int, Line], Dict[str, Circle]]:
-    vertex_circle = dict()
-    edge_line = dict()
-    
-    for i, val in enumerate(graph.v):
-        center = graph.positions[i]
-        circle = Circle(center)
-        circle.draw(fill=VERTEX_UNEXPLORED)
-        vertex_circle[val] = circle
-
-    for i in range(len(graph.e)):
-        v1, v2 = graph.e[i]
-        start, end = shortest_points(vertex_circle[v1], vertex_circle[v2])
-        line = Line(start, end)
-        line.draw(fill=EDGE_UNEXPLORED)
-        edge_line[i] = line
-
-    return (edge_line, vertex_circle)
-
 def sleep():
     time.sleep(0.5)
 
-def bfs(lines: Dict[int, Line], circles: Dict[str, Circle], graph: Graph): 
-    if not graph.v:
+def bfs(start: str, lines: Dict[Tuple[str, str], Line], circles: Dict[str, Circle], neighbors: Dict[str, List[str]]): 
+    if not circles:
         return
     visited = set()
-    start = graph.v[0]
     q = deque([start])
     sleep()
+    circles[start].erase()
     circles[start].draw(fill=VERTEX_CURRENT)
     visited.add(start)
     while q:
         c = q.popleft()
         sleep()
+        circles[c].erase()
         circles[c].draw(fill=VERTEX_EXPLORED)
-        for i in graph.v_e[c]:
+        for neighbor in neighbors[c]:
             sleep()
-            lines[i].draw(fill=EDGE_EXPLORED)
-        for vert in graph.n[c]:
+            line = lines[(c, neighbor)]
+            line.erase()
+            line.draw(fill=EDGE_EXPLORED)
+        for vert in neighbors[c]:
             if vert not in visited:
                 q.append(vert)
                 sleep()
+                circles[vert].erase()
                 circles[vert].draw(fill=VERTEX_CURRENT)
                 visited.add(vert)
-

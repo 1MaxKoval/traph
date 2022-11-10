@@ -1,8 +1,7 @@
 from typing import List, Dict, Tuple
-from .graph import Graph
 from .ui.ui import set_og_background, TERMINAL as term
 from .ui.shapes import MessageBox, Circle, Line, CIRCLE_RADIUS
-from .algorithms import shortest_points
+from .algorithms import shortest_points, bfs
 from collections import defaultdict
 
 def get_v_name() -> str:
@@ -13,7 +12,7 @@ def get_v_name() -> str:
 
 NAME_GENERATOR = get_v_name()
 
-def construct_graph() -> Graph:
+def construct_graph():
     set_og_background()
     welcome_msg = \
 """Welcome to Traph!
@@ -32,7 +31,7 @@ Press `1` to start graph construction."""
 2. Remove vertex
 3. Add edge
 4. Remove edge
-5. Select algorithm"""
+5. Execute BFS"""
     menu_box = MessageBox('c', menu_msg)
     menu_box.draw() 
     circles = []
@@ -62,7 +61,27 @@ Press `1` to start graph construction."""
                     remove_edge(edges, lines)
                     menu_box.draw()
                 elif val == '5':
-                    menu_box.erase()
+                    if len(circles) != 1:
+                        menu_box.erase()
+                        select_algorithm(circles, lines, edges)
+                        menu_box.draw()
+
+def select_algorithm(circles: List[Circle], lines: Dict[Tuple[str, str], Line], edges: Dict[str, List[str]]):
+    circle_name_dict = {c.name: c for c in circles}
+    algo_lines = {}
+
+    for tuple, line in lines.items():
+        algo_lines[tuple] = line
+        algo_lines[(tuple[1],tuple[0])] = line
+
+    bfs(circles[0].name, algo_lines, circle_name_dict, edges)
+
+    for circle in circles:
+        circle.erase()
+        circle.draw(fill=term.red)
+    for tuple, line in lines.items():
+        line.erase()
+        line.draw(fill=term.red)
 
 def add_vertex() -> Circle:
     # ENTER -> 343
@@ -134,8 +153,6 @@ Select using arrow keys and `ENTER`"""
     return line
 
 def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int = -1) -> int:
-    if first != -1 and len(edges[circles[first]]) == len(circles) - 1:
-        raise Exception('Your first choice exhausts all choices rip lmao')
     current = 0 
     while (current == first) or (first != -1 and circles[first].name in edges[circles[current].name]):
         current = (current + 1) % len(circles)
@@ -256,6 +273,3 @@ Select using arrow keys and `ENTER`"""
     c_l.erase()
     del c_l
     msg_box.erase()
-
-def run_algorithms() -> None:
-    pass
