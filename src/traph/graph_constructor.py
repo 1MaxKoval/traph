@@ -50,7 +50,6 @@ Press `1` to start graph construction."""
                     circles.append(add_vertex())
                     menu_box.draw()
                 elif val == '2' and len(circles) >= 1:
-                    # BUG: Error while trying to delete a vertex
                     menu_box.erase()
                     remove_vertex(circles, lines, edges)
                     menu_box.draw()
@@ -120,10 +119,12 @@ Select using arrow keys and `ENTER`"""
     helper_msg_box.draw()
     first = select_circle(selection_circles, edges)
     first_c = selection_circles[first] 
+    first_c.erase()
     first_c.draw(fill=term.green)
     second = select_circle(selection_circles, edges, first)
     second_c = selection_circles[second]
     first_c.erase()
+    first_c.draw(fill=term.red)
     line = Line(*shortest_points(first_c, second_c))
     line.draw(fill=term.red)
     edges[first_c.name].append(second_c.name)
@@ -139,6 +140,7 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
     while (current == first) or (first != -1 and circles[first].name in edges[circles[current].name]):
         current = (current + 1) % len(circles)
     current_c = circles[current]
+    current_c.erase()
     current_c.draw(fill=term.green)
     val = term.inkey()
     while not val.is_sequence or val.code != 343:
@@ -159,6 +161,7 @@ def select_circle(circles: List[Circle], edges: Dict[str, List[str]], first: int
             current_c.erase() 
             current_c.draw(fill=term.red)
             current_c = circles[current]
+            current_c.erase()
             current_c.draw(fill=term.green)
         val = term.inkey()
     current_c.erase()
