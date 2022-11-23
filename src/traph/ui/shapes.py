@@ -73,8 +73,9 @@ class Shape:
         )
     
     def erase(self):
-        remove(self.points, self.point_layers)
-        self.point_layers = {}
+        if self.point_layers:
+            remove(self.points, self.point_layers)
+            self.point_layers = {}
 
 class Circle(Shape):
 
