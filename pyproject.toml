@@ -4,9 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "traph"
-description = "The greatest terminal graph algorithm visualiser"
+description = "The terminal graph visualiser no one asked for"
+version = "0.0.2"
 readme = "README.md"
-dynamic = ["version"]
+license = { file = "LICENSE" }
+keywords = ["graph", "terminal", "game", "visualiser"]
+classifiers = [
+    "Topic :: Games/Entertainment",
+    "Topic :: Terminals"
+]
 requires-python = ">=3.8"
 dependencies = [
     "blessed",
@@ -15,3 +21,6 @@ dependencies = [
 
 [project.scripts]
 traph = "traph:main.main"
+
+[project.urls]
+"Repository" = "https://github.com/1MaxKoval/traph"
